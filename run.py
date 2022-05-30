@@ -1,3 +1,4 @@
+from calendar import month
 import schedule
 import time
 import pandas as pd
@@ -12,7 +13,7 @@ from getUnit import getUnits
 
 def updateData():
     print('starting...')
-    start = datetime(2022, 2, 10)
+    start = datetime.now() - timedelta(weeks=5)
     end = datetime.now()
     # unit = 10265
 
@@ -50,27 +51,44 @@ def updateData():
 
 def updateStat():
     print('starting... STATSTTTSTATSTTATST')
+    start = datetime.now() - timedelta(weeks=5)
+    end = datetime.now()
     units = getUnits()
     arrA = []
     arrB = []
+    arrDay = []
 
     for u in units['items']:
         unit = u['id']
         dfA, dfB = getGroup(unit)
+        dfDay = getBasicData(start, end, unit)
+        dfDay['nm'] = u['nm']
         dfA['nm'] = u['nm']
         dfB['nm'] = u['nm']
+        arrDay.extend(dfDay.to_dict(orient='records'))
         arrA.extend(dfA.to_dict(orient='records'))
         arrB.extend(dfB.to_dict(orient='records'))
     df_rutaA = pd.DataFrame(arrA)
     df_rutaB = pd.DataFrame(arrB)
     df_rutaA.to_csv('df_rutaA.csv', index=False)
     df_rutaB.to_csv('df_rutaB.csv', index=False)
+    df = pd.DataFrame(arrDay)
+    idx = (df['consumed'] != 0) & (
+        df['consumed'] < 100) & (df['engineHours'] < 100)
+    df = df.loc[idx]
+    df['week'] = pd.to_datetime(df['date']).dt.strftime('w %U')
+    df.to_csv('df_tag.csv', index=False)
+    df_date = df.groupby(['date']).agg({'parkingHours': 'sum', 'engineHours': 'sum', 'mileage': 'sum',
+                                        'avgSpeed': 'mean', 'maxSpeed': 'mean', 'consumed': 'sum', 'avgConsumed': 'mean', 'nm': ','.join})
+    df_date.reset_index(inplace=True)
+    df_date['week'] = df_date['date'].dt.strftime('w %U')
+    df_date.to_csv('df_date.csv', index=False)
     return
 
 
 # updateData()
 schedule.every().saturday.at("00:01").do(updateData)
-schedule.every().day.at("00:30").do(updateStat)
+schedule.every().day.at("00:15").do(updateStat)
 
 """
  [{'nm': 'BBA-880', 'cls': 2, 'id': 10293, 'mu': 3, 'uacl': 19327369763},
