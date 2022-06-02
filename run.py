@@ -19,12 +19,48 @@ def updateData():
 
     units = getUnits()
     arrDay = []
+    arrA = []
+    arrB = []
 
     for u in units['items']:
         unit = u['id']
         dfDay = getBasicData(start, end, unit)
+        dfA, dfB = getGroup(unit)
         dfDay['nm'] = u['nm']
+        dfA['nm'] = u['nm']
+        dfB['nm'] = u['nm']
         arrDay.extend(dfDay.to_dict(orient='records'))
+        arrA.extend(dfA.to_dict(orient='records'))
+        arrB.extend(dfB.to_dict(orient='records'))
+    df_rutaA = pd.DataFrame(arrA)
+    df_rutaB = pd.DataFrame(arrB)
+
+    df_rutaA['date'] = df_rutaA['timestampBegin'].apply(
+        lambda x: datetime.fromtimestamp(x).date())
+    df1 = df_rutaA.query('nm == "BBA-880"').query('consumed < 20')
+    df2 = df_rutaA.query('nm == "BBB-850"').query('consumed < 20')
+    df3 = df_rutaA.query('nm == "BBC-924"')
+    df4 = df_rutaA.query('nm == "BBC-929"')
+
+    df_ahorro1 = pd.merge(df1, df2, on=['trip', 'date'])
+    df_ahorro1['ahorro'] = (df_ahorro1['consumed_x'] -
+                            df_ahorro1['consumed_y']) * 100/df_ahorro1['consumed_x']
+    df_ahorro1['week'] = pd.to_datetime(df_ahorro1['date']).dt.strftime('w %U')
+    df_ahorro1['ahorro'].replace([np.inf, -np.inf], np.nan, inplace=True)
+    df_ahorro1.dropna(inplace=True)
+    df_ahorro1 = df_ahorro1.groupby(['week']).mean()
+    df_ahorro1.reset_index(inplace=True)
+    df_ahorro1 = df_ahorro1[['week', 'ahorro']]
+
+    df_ahorro2 = pd.merge(df3, df4, on=['trip', 'date'])
+    df_ahorro2['ahorro'] = (df_ahorro2['consumed_x'] -
+                            df_ahorro2['consumed_y'])*100/df_ahorro2['consumed_x']
+    df_ahorro2['week'] = pd.to_datetime(df_ahorro2['date']).dt.strftime('w %U')
+    df_ahorro2['ahorro'].replace([np.inf, -np.inf], np.nan, inplace=True)
+    df_ahorro2.dropna(inplace=True)
+    df_ahorro2 = df_ahorro2.groupby(['week']).mean()
+    df_ahorro2.reset_index(inplace=True)
+    df_ahorro2 = df_ahorro2[['week', 'ahorro']]
 
     df = pd.DataFrame(arrDay)
     idx = (df['consumed'] != 0) & (
@@ -44,7 +80,8 @@ def updateData():
     df_week = df.groupby(['week']).agg({'parkingHours': 'sum', 'engineHours': 'sum', 'mileage': 'sum',
                                         'avgSpeed': 'mean', 'maxSpeed': 'mean', 'consumed': 'sum', 'avgConsumed': 'mean'})
     df_week.reset_index(inplace=True)
-
+    df_week = df_week.merge(df_ahorro1, how='inner', on='week').merge(
+        df_ahorro2, how='inner', on='week', suffixes=('_BBB850', '_BBC929'))
     df_week.to_csv('df_week.csv', index=False)
     return
 
@@ -87,8 +124,9 @@ def updateStat():
 
 
 # updateData()
-schedule.every().saturday.at("00:01").do(updateData)
-schedule.every().day.at("00:15").do(updateStat)
+# schedule.every().saturday.at("00:01").do(updateData)
+schedule.every().day.at("11:08").do(updateStat)
+schedule.every().day.at("11:08").do(updateData)
 
 """
  [{'nm': 'BBA-880', 'cls': 2, 'id': 10293, 'mu': 3, 'uacl': 19327369763},

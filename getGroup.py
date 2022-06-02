@@ -47,7 +47,7 @@ resources = getResources()
 
 def getGroup(unit):
     end = datetime.now()
-    start = end - timedelta(days=14)
+    start = end - timedelta(weeks=6)
     sdk = login()
     parameterSetLocale = {
         'tzOffset': -18000,

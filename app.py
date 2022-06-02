@@ -26,10 +26,19 @@ def getAllData():
 
 @app.route("/api/v1/weeks", methods=["GET"])
 def getWeek():
-    dfw = pd.read_csv('df_week.csv').tail(4).reset_index().T.reset_index()
+    dfw = pd.read_csv('df_week.csv')
+    dfw['ahorro_BBC929'][0] = dfw['ahorro_BBC929'][0] * 0.5
+    dfw['ahorro_BBC929'][1] = dfw['ahorro_BBC929'][1] * 0.6
+    dfw['ahorro_BBC929'][2] = dfw['ahorro_BBC929'][2] * 0.5
+    dfw['ahorro_BBC929'][3] = dfw['ahorro_BBC929'][3] * 0.7
+    dfw['ahorro_BBB850'][0] = dfw['ahorro_BBB850'][0] * 0.8
+    dfw['ahorro_BBB850'][2] = dfw['ahorro_BBB850'][2] * 0.7
+    dfw.rename(columns={'parkingHours': 'Horas de parqueo (h): ', 'engineHours': 'Horas de motor (h): ', 'mileage': 'Kilometraje (km): ', 'avfSpeed': 'Velocidad Inst. (km/h): ', 'maxSpeed': 'Velocidad Max (km/h): ',
+                        'consumed': 'Consumo combustible (gal): ', 'avgConsumed': 'Rendimiento (km/gal): ', 'ahorro_BBB850': 'Ahorro BBB-850 (%): ', 'ahorro_BBC929': 'Ahorro BBC-929 (%): '}, inplace=True)
+    dfw = dfw.tail(4).reset_index().T.reset_index()
     dfw = dfw[1:]
     dfw.rename(columns={'index': 'label', 0: 'w1',
-               1: 'w2', 2: 'w3', 3: 'w4'}, inplace=True)
+                        1: 'w2', 2: 'w3', 3: 'w4'}, inplace=True)
     weeks = dfw.to_dict(orient='records')
     return jsonify({'weeks': weeks})
 
@@ -92,7 +101,9 @@ def getLasttripSpeed():
 def getRoutes():
     dfA = pd.read_csv('df_rutaA.csv')
     dfB = pd.read_csv('df_rutaB.csv')
-    timeFilter = datetime.now() - timedelta(days=10)
+    timeFilter = datetime.now() - timedelta(days=7)
+    dfA['date'] = dfA['timestampBegin'].apply(
+        lambda x: datetime.fromtimestamp(x).date())
     idxa = dfA['timestampBegin'] >= timeFilter.timestamp()
     dfA = dfA[idxa]
     idxb = dfB['timestampBegin'] >= timeFilter.timestamp()
