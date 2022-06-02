@@ -14,12 +14,12 @@ def login():
     sdk = WialonSdk(
         is_development=True,
         scheme='https',
-        host='orf-monitor4.com'
+        host=''
     )
 
     try:
         # If you haven't a token, you should use our token generator
-        token = '04bc3a31b5b56602a41049ef70682b8a8D86287D31CCF3F6905E2D2EBECA2F1B723F5EF4'
+        token = ''
         # https://goldenmcorp.com/resources/token-generator
         sdk.login(token)
         return sdk
