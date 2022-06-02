@@ -101,7 +101,7 @@ def getLasttripSpeed():
 def getRoutes():
     dfA = pd.read_csv('df_rutaA.csv')
     dfB = pd.read_csv('df_rutaB.csv')
-    timeFilter = datetime.now() - timedelta(days=7)
+    timeFilter = datetime.now() - timedelta(days=14)
     dfA['date'] = dfA['timestampBegin'].apply(
         lambda x: datetime.fromtimestamp(x).date())
     idxa = dfA['timestampBegin'] >= timeFilter.timestamp()

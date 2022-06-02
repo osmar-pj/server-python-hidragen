@@ -89,21 +89,21 @@ df4 = df_rutaA.query('nm == "BBC-929"')
 
 df_ahorro1 = pd.merge(df1, df2, on=['trip', 'date'])
 df_ahorro1['ahorro'] = (df_ahorro1['consumed_x'] -
-                        df_ahorro1['consumed_y']) * 100/df_ahorro1['consumed_x']
+                        df_ahorro1['consumed_y'])
 df_ahorro1['week'] = pd.to_datetime(df_ahorro1['date']).dt.strftime('w %U')
 df_ahorro1['ahorro'].replace([np.inf, -np.inf], np.nan, inplace=True)
 df_ahorro1.dropna(inplace=True)
-df_ahorro1 = df_ahorro1.groupby(['week']).mean()
+df_ahorro1 = df_ahorro1.groupby(['week']).sum()
 df_ahorro1.reset_index(inplace=True)
 df_ahorro1 = df_ahorro1[['week', 'ahorro']]
 
 df_ahorro2 = pd.merge(df3, df4, on=['trip', 'date'])
 df_ahorro2['ahorro'] = (df_ahorro2['consumed_x'] -
-                        df_ahorro2['consumed_y'])*100/df_ahorro2['consumed_x']
+                        df_ahorro2['consumed_y'])
 df_ahorro2['week'] = pd.to_datetime(df_ahorro2['date']).dt.strftime('w %U')
 df_ahorro2['ahorro'].replace([np.inf, -np.inf], np.nan, inplace=True)
 df_ahorro2.dropna(inplace=True)
-df_ahorro2 = df_ahorro2.groupby(['week']).mean()
+df_ahorro2 = df_ahorro2.groupby(['week']).sum()
 df_ahorro2.reset_index(inplace=True)
 df_ahorro2 = df_ahorro2[['week', 'ahorro']]
 
