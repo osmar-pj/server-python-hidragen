@@ -33,7 +33,7 @@ def getWeek():
     dfw['ahorro_BBC929'][3] = dfw['ahorro_BBC929'][3] * 0.7
     dfw['ahorro_BBB850'][0] = dfw['ahorro_BBB850'][0] * 0.8
     dfw['ahorro_BBB850'][2] = dfw['ahorro_BBB850'][2] * 0.7
-    dfw.rename(columns={'parkingHours': 'Horas de parqueo (h): ', 'engineHours': 'Horas de motor (h): ', 'mileage': 'Kilometraje (km): ', 'avfSpeed': 'Velocidad Inst. (km/h): ', 'maxSpeed': 'Velocidad Max (km/h): ',
+    dfw.rename(columns={'parkingHours': 'Horas de parqueo (h): ', 'engineHours': 'Horas de motor (h): ', 'mileage': 'Kilometraje (km): ', 'avgSpeed': 'Velocidad Inst. (km/h): ', 'maxSpeed': 'Velocidad Max (km/h): ',
                         'consumed': 'Consumo combustible (gal): ', 'avgConsumed': 'Rendimiento (km/gal): ', 'ahorro_BBB850': 'Ahorro BBB-850 (%): ', 'ahorro_BBC929': 'Ahorro BBC-929 (%): '}, inplace=True)
     dfw = dfw.tail(4).reset_index().T.reset_index()
     dfw = dfw[1:]
